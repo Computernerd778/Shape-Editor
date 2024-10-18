@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Custom Design Editor</title>
     <style>
-        /* CSS for layout and styling */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
@@ -57,6 +56,14 @@
             font-size: 18px;
             cursor: move;
         }
+        .color-picker {
+            margin: 10px 0;
+        }
+        .color-picker button {
+            margin-right: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -72,13 +79,25 @@
         <button id="addText">Add Text</button>
     </div>
 
+    <!-- Color Picker -->
+    <div class="color-picker">
+        <button class="color-btn" data-color="red" style="background-color: red;">Red</button>
+        <button class="color-btn" data-color="blue" style="background-color: blue;">Blue</button>
+        <button class="color-btn" data-color="green" style="background-color: green;">Green</button>
+        <button class="color-btn" data-color="grey" style="background-color: grey;">Grey</button>
+        <button class="color-btn" data-color="black" style="background-color: black; color: white;">Black</button>
+    </div>
+
     <!-- Canvas area where customers will edit -->
     <div id="canvas" class="canvas"></div>
+    
+    <!-- Download Button -->
+    <button id="downloadBtn">Download as PNG</button>
 </div>
 
 <script>
-    // JavaScript to add interactivity
     const canvas = document.getElementById('canvas');
+    let selectedElement = null;
 
     // Add Square
     document.getElementById('addSquare').addEventListener('click', () => {
@@ -88,6 +107,7 @@
         square.style.left = '10px';
         canvas.appendChild(square);
         makeDraggable(square);
+        square.addEventListener('click', () => selectElement(square));
     });
 
     // Add Circle
@@ -98,6 +118,7 @@
         circle.style.left = '10px';
         canvas.appendChild(circle);
         makeDraggable(circle);
+        circle.addEventListener('click', () => selectElement(circle));
     });
 
     // Add Text
@@ -110,6 +131,7 @@
         textBox.innerText = 'Your text here';
         canvas.appendChild(textBox);
         makeDraggable(textBox);
+        textBox.addEventListener('click', () => selectElement(textBox));
     });
 
     // Make elements draggable
@@ -138,7 +160,37 @@
             document.removeEventListener('mouseup', stopDragging);
         }
     }
+
+    // Select an element
+    function selectElement(element) {
+        selectedElement = element;
+    }
+
+    // Apply color to selected element
+    document.querySelectorAll('.color-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            if (selectedElement) {
+                selectedElement.style.backgroundColor = button.dataset.color;
+                if (selectedElement.classList.contains('text-box')) {
+                    selectedElement.style.color = button.dataset.color;
+                }
+            }
+        });
+    });
+
+    // Download canvas as PNG
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+        html2canvas(document.getElementById('canvas')).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'custom_design.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+    });
 </script>
+
+<!-- Include the html2canvas library for downloading the canvas as PNG -->
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 </body>
 </html>
